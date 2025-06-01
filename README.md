@@ -1,1 +1,79 @@
 # CATEDRA-1
+Oferta de matriculas del Sistema de Admision Escolar (SAE) en niveles de enseñanza 2025
+
+Introducción
+
+El Sistema de Admisión Escolar (SAE) comenzó a ser puesto en marcha por el Ministerio de Educación en el año 2016, como parte de la Ley de Inclusión Escolar (Ley N° 20.845), comenzó como un plan piloto en la Región de Magallanes y alcanzó cobertura nacional en 2020.
+Este sistema reemplazó los antiguos procesos de admisión pública por la plataforma centralizada que asigna cupos a través de prioridades objetivas (Hermanos en el mismo establecimiento, hijos de funcionarios del establecimiento, estudiantes prioritarios o preferentes, postulantes que vienen de colegios con continuidad curricular y estudiantes que ya estuvieron matriculados anteriormente en el establecimiento) y un algoritmo aleatorio. Entre sus principales aciertos, destaca la eliminación de prácticas discriminatorias, el fortalecimiento de la transparencia, y la igualdad de condiciones para todas las familias al postular.
+Sin embargo, el SAE también ha evidenciado falencias importantes, como la percepción que existe una limitada oferta en comunas con alta demanda y que no todos los establecimientos públicos están obligados a adherirse al sistema, lo que mantiene ciertas desigualdades estructurales en el acceso a la educación, este trabajo tiene como propósito centrarse en analizar estos aspectos.
+
+Objetivo
+
+Los objetivos de este informe es determinar:
+
+Cobertura por tipo de enseñanza identificando las vacantes totales por tipo de enseñanza (cod_ense)
+
+
+Procesamiento de datos
+
+Se consideró para este análisis una base de datos disponible en https://datosabiertos.mineduc.cl/
+
+1. Exploración de datos
+
+Se analizara el problema de oferta limitada en los diferentes niveles, para ello se utilizarán dos bases de datos,
+
+datos= Oferta de matricula 2025 (Admision_2025)
+
+1.1 Importación de Datos
+
+{r}
+#Importacion de datos
+
+#carga de datos
+  
+datos <- read.csv2("Admision_2025.csv")
+
+
+1.2 Analisis de estructura de datos:
+
+{r}
+str(datos)
+
+1.3 Revision de valores faltantes: se estima que no hay valores faltantes
+
+{r}
+colSums(is.na(datos))
+
+2. Resumen de vacantes por codigo de enseñanza
+
+2.1 Se agrupan vacantes por nivel educativo (cod_ense) obtienendose la cantidad de vacantes de determinado nivel respecto de los cupos que tiene ofrecidos considerando que por arrastre del año anterior ya tiene alumnos en dicho nivel
+
+{r}
+library(dplyr)
+vacantes_por_nivel <- datos %>% group_by(cod_ense) %>% summarise(vacantes_totales = sum(vacantes, na.rm = TRUE), cupos_totales = sum(cupos_totales, na.rm = TRUE)) %>% arrange(desc(vacantes_totales))
+
+print (vacantes_por_nivel)
+
+
+2.2 Determinar que distribucion geografica tienen las vacantes
+
+{r}
+library(ggplot2)
+
+ggplot(datos, aes(x = lon, y = lat , size = vacantes, color = cod_nivel)) + geom_point(alpha = 0.6) + labs(title = "Distribucion geografica de vacantes por codigo de enseñanza") + theme_minimal()
+
+
+2.3 Determinar que capacidad tiene cada codigo de enseñanza agrupado: 
+
+{r}
+library(dplyr)
+capacidad <- datos %>% mutate(suma_cod_ense_vacantes = cupos_totales + vacantes)
+
+{r}
+library(dplyr)
+
+cap_cod_ens <- capacidad %>% group_by(suma_cod_ense_vacantes)%>%summarise(suma_total=suma_cod_ense_vacantes, na.rm = TRUE)                 
+
+Conclusión
+
+De los análisis anteriores se puede inferir que las vacantes están concentradas en zonas urbanas y hay una escasez de esta en las zonas extremas, existe una saturación de la enseñanza media científico humanista y se encuentra menospreciada la oferta técnico artística y como recomendación sería posible reconvertir los niveles con baja demanda (ej: artísticos) podrían adaptarse a necesidades locales (ej: cursos técnicos en zonas industriales).
