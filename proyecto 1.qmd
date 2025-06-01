@@ -48,10 +48,6 @@ datos <- read.csv2("Admision_2025.csv")
 str(datos)
 ```
 
-```{r}
-str(MATRICULA_2024)
-```
-
 1.3 Revision de valores faltantes: se estima que no hay valores faltantes
 
 ```{r}
@@ -71,6 +67,8 @@ vacantes_por_nivel <- datos %>%
 print (vacantes_por_nivel)
 ```
 
+![](images/clipboard-1183769133.png)
+
 2.2 Determinar que distribucion geografica tienen las vacantes
 
 ```{r}
@@ -80,17 +78,20 @@ ggplot(datos, aes(x = lon, y = lat , size = vacantes, color = cod_nivel)) + geom
 
 ```
 
-2.3 Determinar que capacidad tiene cada codigo de enseñanza oferta
+2.3 Determinar que capacidad tiene cada codigo de enseñanza agrupado:
 
 ```{r}
 library(dplyr)
 capacidad <- datos %>% mutate(suma_cod_ense_vacantes = cupos_totales + vacantes)
-```
 
-2.4 Capacidad por codigo de enseñanza
+```
 
 ```{r}
 library(dplyr)
 
-cap_cod_ens <- capacidad %>% group_by(suma_cod_ense_vacantes)%>%summarise(suma_total=suma_cod_ense_vacantes, na.rm = TRUE)                 
+cap_cod_ens <- capacidad %>% group_by(suma_cod_ense_vacantes)%>%summarise(suma_total=suma_cod_ense_vacantes, na.rm = TRUE)
 ```
+
+## Conclusión
+
+De los análisis anteriores se puede inferir que las vacantes están concentradas en zonas urbanas y hay una escasez de esta en las zonas extremas, existe una saturación de la enseñanza media científico humanista y se encuentra menospreciada la oferta técnico artística y como recomendación sería posible reconvertir los niveles con baja demanda (ej: artísticos) podrían adaptarse a necesidades locales (ej: cursos técnicos en zonas industriales).
